@@ -51,8 +51,18 @@ def load_tweets(query, target, database):
         res = urllib2.urlopen(req)
         payload = json.load(res)
         if len(payload['results']) > 0: 
+            add_counts(payload)
             coll.insert(payload['results'])
     
+
+def add_counts(payload):
+    """Add counts to the entities data since MongoDB doesn't support useful operators on array sizes."""
+    for result in payload['results']:
+        entities = result['entities']
+        entities['user_mentions_len'] = len(entities['user_mentions'])
+        entities['hashtags_len'] = len(entities['hashtags'])
+        entities['urls_len'] = len(entities['urls'])
+        
 
 if __name__ == "__main__":
     options = get_options()
